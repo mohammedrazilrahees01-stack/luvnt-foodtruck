@@ -10,6 +10,22 @@ from apps.menu.models import MenuItem
 from apps.shops.models import Shop
 
 
+
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from .models import Order
+from .serializers import OrderListSerializer
+
+@api_view(['GET'])
+def orders_by_phone(request):
+    phone = request.query_params.get('phone')
+    if not phone:
+        return Response({'detail': 'phone query param required'}, status=400)
+    qs = Order.objects.filter(phone=phone).order_by('-created_at')[:20]
+    data = OrderListSerializer(qs, many=True).data
+    return Response(data)
+
+
 @csrf_exempt
 def create_order(request):
     """

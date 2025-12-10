@@ -106,3 +106,22 @@ class PaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
         fields = ('id','order','method','provider_payment_id','amount','paid_at','success')
+
+
+# apps/orders/serializers.py
+from rest_framework import serializers
+from .models import Order, OrderItem, Payment
+
+class OrderItemTinySerializer(serializers.ModelSerializer):
+    item_name = serializers.CharField(source='item.name', read_only=True)
+
+    class Meta:
+        model = OrderItem
+        fields = ['item_name', 'qty', 'price']
+
+class OrderListSerializer(serializers.ModelSerializer):
+    items = OrderItemTinySerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Order
+        fields = ['id', 'status', 'total', 'created_at', 'is_delivery', 'items']

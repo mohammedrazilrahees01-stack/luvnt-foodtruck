@@ -1,0 +1,9 @@
+Django==4.2.27
+djangorestframework==3.16.1
+django-filter
+whitenoise
+gunicorn
+channels
+Pillow
+djangorestframework-simplejwt
+razorpay

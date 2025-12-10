@@ -1,374 +1,654 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Food Truck — Order</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <title>LaPazera — Smart Food Truck</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Simple clean styling -->
   <style>
-    body { padding: 1rem; background:#f7f9fc; }
-    .item-card { min-height: 150px; }
-    .muted-small { font-size:.85rem; color:#666; }
-    #cart { max-height:70vh; overflow:auto; }
-    .logo-small { height:40px; object-fit:contain; }
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --bg: #0f172a;
+      --card: #020617;
+      --card-soft: #111827;
+      --border: #1f2937;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --danger: #f97373;
+      --success: #22c55e;
+      --accent: #14b8a6;
+      --radius-lg: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top left,#111827,#020617);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+    }
+
+    .shell {
+      width: 100%;
+      max-width: 1200px;
+      padding: 24px 16px 40px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo {
+      width: 42px;
+      height: 42px;
+      border-radius: 16px;
+      border: 1px solid rgba(148,163,184,.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 20px;
+      color: var(--accent);
+      background: radial-gradient(circle at top, #0ea5e9 0, #020617 55%);
+    }
+
+    .brand-title {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .brand-sub {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .badge {
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(37, 99, 235, 0.2);
+      border: 1px solid rgba(59, 130, 246, 0.5);
+      font-size: 11px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      gap: 20px;
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: linear-gradient(135deg, rgba(15,23,42,0.95), rgba(15,23,42,0.9));
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(31,41,55,0.85);
+      box-shadow: 0 18px 40px rgba(15,23,42,0.9);
+      padding: 16px 18px 18px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      gap: 10px;
+    }
+
+    .card-title {
+      font-weight: 600;
+      font-size: 15px;
+    }
+
+    .card-sub {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .chip {
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.9);
+      border: 1px solid rgba(55,65,81,.7);
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* Filters row */
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    label {
+      font-size: 11px;
+      color: var(--muted);
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    input, select, button, textarea {
+      font: inherit;
+    }
+
+    .input {
+      width: 100%;
+      padding: 7px 9px;
+      border-radius: 10px;
+      border: 1px solid rgba(55,65,81,1);
+      background: rgba(15,23,42,0.9);
+      color: var(--text);
+      font-size: 13px;
+      outline: none;
+    }
+
+    .input::placeholder { color: #4b5563; }
+
+    .input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 1px rgba(37,99,235,.6);
+    }
+
+    .btn {
+      border: none;
+      border-radius: 999px;
+      padding: 7px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      box-shadow: 0 12px 30px rgba(37,99,235,0.45);
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 16px 38px rgba(37,99,235,0.6);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid rgba(75,85,99,.9);
+    }
+    .btn-outline:hover {
+      background: rgba(15,23,42,.8);
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .menu-item {
+      padding: 12px 12px 10px;
+      background: radial-gradient(circle at top left,#111827,#020617);
+      border-radius: 14px;
+      border: 1px solid rgba(31,41,55,1);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .menu-name {
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .price {
+      font-size: 13px;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .pill {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(15,23,42,.9);
+      border: 1px solid rgba(55,65,81,.9);
+      color: var(--muted);
+    }
+
+    .addon-pill {
+      border-color: rgba(52,211,153,.5);
+      color: #a7f3d0;
+    }
+
+    .menu-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .qty-input {
+      width: 60px;
+      text-align: center;
+    }
+
+    .cart-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .cart-amount {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    .cart-body {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .cart-items {
+      max-height: 160px;
+      overflow-y: auto;
+      padding-right: 4px;
+      margin-bottom: 4px;
+    }
+
+    .cart-line {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      padding: 4px 0;
+      border-bottom: 1px dashed rgba(55,65,81,.8);
+    }
+
+    .cart-meta {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .switch-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+
+    .switch-row span.note {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .code-pill {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .status {
+      font-size: 12px;
+      margin-top: 6px;
+    }
+
+    .status.error { color: var(--danger); }
+    .status.ok { color: var(--success); }
+
+    .tiny {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 6px;
+      text-align: right;
+    }
+
+    .api-link {
+      color: var(--accent);
+      text-decoration: none;
+      border-bottom: 1px dashed rgba(45,212,191,.5);
+      padding-bottom: 1px;
+      font-size: 12px;
+    }
   </style>
 </head>
 <body>
-<div class="container">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <div>
-      <h1 class="h3">LaPazera — Menu</h1>
-      <div class="muted-small">Open API root: <a href="/api/menu/" target="_blank">/api/menu/</a></div>
-    </div>
-    <div>
-      <img id="logo" src="" alt="Logo placeholder (add later)" class="logo-small">
-    </div>
-  </div>
-
-  <div class="card mb-3 p-3">
-    <div class="row g-2 align-items-center">
-      <div class="col-auto">
-        <label class="form-label mb-0 small">Shop ID</label>
-        <input id="shop-id" class="form-control form-control-sm" value="1" style="width:90px;">
+<div class="shell">
+  <!-- Top bar -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">L</div>
+      <div>
+        <div class="brand-title">LaPazera — Menu</div>
+        <div class="brand-sub">Live food-truck orders • MENA / Abu Dhabi</div>
       </div>
-      <div class="col-auto">
-        <label class="form-label mb-0 small">Shop lat,lng (optional)</label>
-        <input id="shop-lng-lat" class="form-control form-control-sm" placeholder="lat,lng" style="width:220px;">
-      </div>
-      <div class="col-auto">
-        <label class="form-label mb-0 small">&nbsp;</label><br/>
-        <button id="load-menu" class="btn btn-sm btn-primary">Load menu</button>
-      </div>
-      <div class="col text-end muted-small">Supports variants & addons if your API returns `variants`/`addons` inside items.</div>
     </div>
-  </div>
-
-  <div class="row">
-    <div class="col-md-8">
-      <div id="menu" class="row g-3"></div>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      <span class="badge">v1 · Internal demo (Django + DRF)</span>
+      <a href="/api/menu/" class="api-link" target="_blank">Open API root</a>
     </div>
+  </header>
 
-    <div class="col-md-4">
-      <div class="card p-3" id="cart">
-        <h5 class="mb-2">Cart</h5>
-        <div id="cart-items" class="mb-2"></div>
+  <!-- Layout -->
+  <main class="layout">
+    <!-- LEFT: MENU -->
+    <section class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Shop menu</div>
+          <div class="card-sub">Load items for any truck ID and location.</div>
+        </div>
+        <span class="chip">5 km delivery radius logic in backend</span>
+      </div>
 
-        <div class="mb-2">
-          <label class="form-label small">Referral code</label>
-          <input id="ref-code" class="form-control form-control-sm" placeholder="optional">
-          <div id="ref-info" class="muted-small mt-1"></div>
+      <!-- Filters -->
+      <div class="filters">
+        <div style="min-width:90px;flex:1;">
+          <label for="shopId">Shop ID</label>
+          <input id="shopId" class="input" value="1" />
+        </div>
+        <div style="min-width:110px;flex:2;">
+          <label for="shopLatLng">Shop lat,lng (optional)</label>
+          <input id="shopLatLng" class="input" placeholder="24.4667,54.3667" />
+        </div>
+        <div>
+          <label>&nbsp;</label>
+          <button id="btnLoadMenu" class="btn btn-primary btn-sm">Load menu</button>
+        </div>
+      </div>
+
+      <!-- Menu items grid -->
+      <div id="menuGrid" class="menu-grid">
+        <!-- Items injected by JS -->
+      </div>
+    </section>
+
+    <!-- RIGHT: CART -->
+    <section class="card">
+      <div class="cart-header-row">
+        <div>
+          <div class="card-title">Cart</div>
+          <div class="card-sub" id="cartSummary">Cart empty</div>
+        </div>
+        <div class="cart-amount">
+          Total: ₹<span id="cartTotal">0.00</span>
+        </div>
+      </div>
+
+      <div class="cart-body">
+        <!-- Cart lines -->
+        <div id="cartLines" class="cart-items"></div>
+
+        <!-- Referral + delivery -->
+        <div>
+          <label for="referralCode">Referral code</label>
+          <input id="referralCode" class="input" placeholder="optional (A / B / C etc.)" />
+          <div class="code-pill">Codes validated server-side later, safe to share.</div>
         </div>
 
-        <div class="mb-2">
-          <div class="form-check">
-            <input id="is-delivery" class="form-check-input" type="checkbox">
-            <label class="form-check-label small">Delivery (5 km radius)</label>
-          </div>
-          <div id="delivery-warning" class="text-danger small d-none"></div>
+        <div class="switch-row">
+          <input id="isDelivery" type="checkbox" />
+          <span>Delivery (5 km radius)</span>
         </div>
 
-        <div class="mb-2">
-          <label class="form-label small">Phone</label>
-          <input id="phone" class="form-control form-control-sm" placeholder="9999999999">
-        </div>
-        <div class="mb-2">
-          <label class="form-label small">Address</label>
-          <input id="address" class="form-control form-control-sm" placeholder="Delivery address">
+        <!-- Customer inputs -->
+        <div>
+          <label for="phoneInput">Phone</label>
+          <input id="phoneInput" class="input" placeholder="e.g. 7594033710" />
         </div>
 
-        <div class="mb-2">
-          <label class="form-label small">Payment</label>
-          <select id="pay-method" class="form-select form-select-sm">
-            <option value="online">Online (UPI/Checkout)</option>
+        <div>
+          <label for="addressInput">Address</label>
+          <input id="addressInput" class="input" placeholder="Flat / building / landmark" />
+        </div>
+
+        <div>
+          <label for="paymentMethod">Payment</label>
+          <select id="paymentMethod" class="input">
+            <option value="online">Online (UPI / Checkout)</option>
             <option value="cash">Cash at shop</option>
           </select>
         </div>
 
-        <div class="d-flex justify-content-between align-items-center mt-2">
-          <div><strong>Total:</strong> ₹ <span id="total">0.00</span></div>
-          <button id="place-order" class="btn btn-primary btn-sm">Place order</button>
+        <!-- Action row -->
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:4px;">
+          <div style="font-size:11px;color:var(--muted);">
+            All prices in <strong>INR</strong>. Online payments simulated in test mode.
+          </div>
+          <button id="btnPlaceOrder" class="btn btn-primary">
+            Place order
+          </button>
         </div>
 
-        <div id="order-result" class="mt-2"></div>
+        <div id="clientMessage" class="status"></div>
+        <div id="serverMessage" class="status"></div>
+
+        <div class="tiny">
+          Open API: <a class="api-link" href="/api/orders/" target="_blank">/api/orders/</a>
+        </div>
       </div>
-    </div>
-  </div>
+    </section>
+  </main>
 </div>
 
-<!-- Variant/addon modal -->
-<div class="modal fade" id="optionsModal" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header"><h5 id="optionsTitle">Options</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
-      <div class="modal-body">
-        <div id="variantsArea"></div>
-        <hr/>
-        <div id="addonsArea"></div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
-        <button id="confirmOptions" class="btn btn-primary btn-sm">Add to cart</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-/* CONFIG */
-const API_ROOT = window.location.origin; // same origin; served by Django
-let cart = []; // { item_id, variant_id|null, addon_ids:[], qty }
-let lastMenu = []; // raw menu items
-let shopCoords = null; // {lat, lng}
-const SHOP_RADIUS_KM = 5;
+  const API_MENU_ITEMS = "/api/menu/items/";
+  const API_ORDER_CREATE = "/api/orders/order/create/";  // uses your Django view
 
-/* UTIL */
-function el(tag, cls=''){ const e=document.createElement(tag); if(cls) e.className=cls; return e; }
-function escapeHtml(s){ if(!s) return ''; return s.replace(/[&<>"']/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[c]); }
+  let cart = [];
 
-/* LOAD MENU */
-async function loadMenu(){
-  const menuDiv = document.getElementById('menu');
-  menuDiv.innerHTML = '<div class="col-12">Loading…</div>';
-  try {
-    const res = await fetch(`${API_ROOT}/api/menu/items/`);
-    const data = await res.json();
-    lastMenu = Array.isArray(data) ? data : [];
-    if(lastMenu.length===0){ menuDiv.innerHTML = '<div class="col-12">No items yet (add in admin)</div>'; updateTotal(); return; }
-    menuDiv.innerHTML = '';
-    lastMenu.forEach(it=>{
-      const col = el('div','col-md-6');
-      const card = el('div','card p-3 item-card');
-      const h = el('h5'); h.innerHTML = `${escapeHtml(it.name)} <small class="muted-small">₹${it.base_price}</small>`;
-      const desc = el('div','muted-small'); desc.textContent = it.description || '';
-      const controls = el('div','text-end mt-2');
-      const addBtn = el('button','btn btn-sm btn-primary');
-      addBtn.textContent = 'Add';
-      addBtn.onclick = ()=> beginAddItem(it);
-      controls.appendChild(addBtn);
-      card.appendChild(h); card.appendChild(desc);
-      // optional image
-      if(it.image){
-        const img = el('img','img-fluid mb-2');
-        img.src = it.image.startsWith('http') ? it.image : `${API_ROOT}${it.image}`;
-        img.alt = it.name || 'item image';
-        img.style.maxHeight='120px';
-        card.insertBefore(img, h);
+  function money(v) {
+    return Number(v).toFixed(2);
+  }
+
+  function renderMenu(items) {
+    const grid = document.getElementById("menuGrid");
+    grid.innerHTML = "";
+    if (!items.length) {
+      grid.innerHTML = "<div style='font-size:13px;color:#9ca3af'>No items returned by API.</div>";
+      return;
+    }
+    for (const item of items) {
+      const div = document.createElement("div");
+      div.className = "menu-item";
+      div.innerHTML = `
+        <div class="menu-name">${item.name}</div>
+        <div class="price">₹${money(item.base_price)}</div>
+        <div class="pill-row">
+          ${item.variants && item.variants.length ? `<span class="pill">${item.variants.length} variants</span>` : ""}
+          ${item.addons && item.addons.length ? `<span class="pill addon-pill">${item.addons.length} addons</span>` : ""}
+        </div>
+        <div class="menu-footer">
+          <input type="number" min="1" value="1" class="input qty-input" />
+          <button class="btn btn-outline btn-sm">Add</button>
+        </div>
+      `;
+      const qtyInput = div.querySelector("input");
+      const addBtn = div.querySelector("button");
+      addBtn.addEventListener("click", () => {
+        const qty = Math.max(1, parseInt(qtyInput.value || "1", 10));
+        addToCart(item, qty);
+      });
+      grid.appendChild(div);
+    }
+  }
+
+  function addToCart(item, qty) {
+    const existing = cart.find(c => c.id === item.id);
+    if (existing) {
+      existing.qty += qty;
+    } else {
+      cart.push({
+        id: item.id,
+        name: item.name,
+        price: Number(item.base_price),
+        qty
+      });
+    }
+    renderCart();
+  }
+
+  function renderCart() {
+    const lines = document.getElementById("cartLines");
+    const totalEl = document.getElementById("cartTotal");
+    const summaryEl = document.getElementById("cartSummary");
+    lines.innerHTML = "";
+
+    if (!cart.length) {
+      summaryEl.textContent = "Cart empty";
+      totalEl.textContent = "0.00";
+      return;
+    }
+
+    let total = 0;
+    cart.forEach(line => {
+      const lineTotal = line.price * line.qty;
+      total += lineTotal;
+      const div = document.createElement("div");
+      div.className = "cart-line";
+      div.innerHTML = `
+        <span>${line.qty} × ${line.name}</span>
+        <span>₹${money(lineTotal)}</span>
+      `;
+      lines.appendChild(div);
+    });
+    summaryEl.textContent = `${cart.length} item(s) in cart`;
+    totalEl.textContent = money(total);
+  }
+
+  async function loadMenu() {
+    const msg = document.getElementById("clientMessage");
+    msg.textContent = "";
+    try {
+      const res = await fetch(API_MENU_ITEMS);
+      if (!res.ok) throw new Error("API error " + res.status);
+      const data = await res.json();
+      renderMenu(data);
+      msg.className = "status ok";
+      msg.textContent = `Loaded ${data.length} item(s) from API.`;
+    } catch (err) {
+      console.error(err);
+      msg.className = "status error";
+      msg.textContent = "Could not load menu. Check server / API.";
+    }
+  }
+
+  async function placeOrder() {
+    const clientMsg = document.getElementById("clientMessage");
+    const serverMsg = document.getElementById("serverMessage");
+    clientMsg.textContent = "";
+    serverMsg.textContent = "";
+
+    if (!cart.length) {
+      clientMsg.className = "status error";
+      clientMsg.textContent = "Add at least one item to cart.";
+      return;
+    }
+    const phone = document.getElementById("phoneInput").value.trim();
+    const address = document.getElementById("addressInput").value.trim();
+    const isDelivery = document.getElementById("isDelivery").checked;
+    const shopId = parseInt(document.getElementById("shopId").value || "1", 10);
+
+    if (!phone) {
+      clientMsg.className = "status error";
+      clientMsg.textContent = "Phone is required.";
+      return;
+    }
+    if (isDelivery && !address) {
+      clientMsg.className = "status error";
+      clientMsg.textContent = "Address is required for delivery.";
+      return;
+    }
+
+    const payload = {
+      shop_id: shopId,
+      phone,
+      address,
+      is_delivery: isDelivery,
+      // simple items mapping (no variants/addons yet)
+      items: cart.map(c => ({
+        item_id: c.id,
+        variant_id: null,
+        addon_ids: [],
+        qty: c.qty
+      }))
+    };
+
+    clientMsg.className = "status";
+    clientMsg.textContent = "Sending order…";
+
+    try {
+      const res = await fetch(API_ORDER_CREATE, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        serverMsg.className = "status error";
+        serverMsg.textContent = JSON.stringify(data);
+      } else {
+        serverMsg.className = "status ok";
+        serverMsg.textContent = JSON.stringify(data);
+        cart = [];
+        renderCart();
       }
-      card.appendChild(controls);
-      col.appendChild(card);
-      menuDiv.appendChild(col);
-    });
-    updateTotal();
-  } catch(e){
-    menuDiv.innerHTML = '<div class="text-danger">Menu load failed (see console)</div>';
-    console.error(e);
-  }
-}
-
-/* BEGIN ADD (show variants/addons if present) */
-let currentSelecting = null;
-function beginAddItem(item){
-  currentSelecting = item;
-  const vs = document.getElementById('variantsArea');
-  const as = document.getElementById('addonsArea');
-  vs.innerHTML = ''; as.innerHTML = '';
-  document.getElementById('optionsTitle').textContent = item.name;
-  // Variants (if present)
-  if(item.variants && item.variants.length){
-    const g = el('div');
-    g.appendChild(el('div','mb-2')).textContent='Choose variant:';
-    item.variants.forEach(v=>{
-      const id = `variant-${v.id}`;
-      const rb = `<div class="form-check"><input class="form-check-input" type="radio" name="variant" id="${id}" value="${v.id}"><label class="form-check-label" for="${id}">${escapeHtml(v.name)} (+₹${v.price_delta})</label></div>`;
-      g.insertAdjacentHTML('beforeend', rb);
-    });
-    vs.appendChild(g);
-  } else vs.innerHTML = '<div class="muted-small">No variants</div>';
-  // Addons (if present)
-  if(item.addons && item.addons.length){
-    const g = el('div');
-    g.appendChild(el('div','mb-2')).textContent='Addons (optional):';
-    item.addons.forEach(a=>{
-      const id = `addon-${a.id}`;
-      const cb = `<div class="form-check"><input class="form-check-input" type="checkbox" id="${id}" value="${a.id}"><label class="form-check-label" for="${id}">${escapeHtml(a.name)} (+₹${a.price})</label></div>`;
-      g.insertAdjacentHTML('beforeend', cb);
-    });
-    as.appendChild(g);
-  } else as.innerHTML = '<div class="muted-small">No addons</div>';
-  const modal = new bootstrap.Modal(document.getElementById('optionsModal'));
-  modal.show();
-}
-
-/* CONFIRM OPTIONS */
-document.getElementById('confirmOptions').addEventListener('click', ()=>{
-  const item = currentSelecting;
-  if(!item) return;
-  const variantEl = document.querySelector('input[name="variant"]:checked');
-  const variant_id = variantEl ? Number(variantEl.value) : null;
-  const addonEls = Array.from(document.querySelectorAll('#addonsArea input[type="checkbox"]:checked')).map(c=>Number(c.value));
-  addToCart({ item_id: item.id, variant_id, addon_ids: addonEls, qty: 1 });
-  bootstrap.Modal.getInstance(document.getElementById('optionsModal')).hide();
-});
-
-/* Cart operations */
-function addToCart(line){
-  const same = cart.find(c => c.item_id===line.item_id && c.variant_id===line.variant_id && JSON.stringify(c.addon_ids)==JSON.stringify(line.addon_ids));
-  if(same){ same.qty += line.qty; } else cart.push(JSON.parse(JSON.stringify(line)));
-  renderCart();
-}
-function renderCart(){
-  const wrap = document.getElementById('cart-items');
-  if(cart.length===0){ wrap.innerHTML = '<div class="muted-small">Cart empty</div>'; updateTotal(); return; }
-  wrap.innerHTML = '';
-  cart.forEach((c, idx)=>{
-    const row = el('div','d-flex align-items-center mb-2');
-    const left = el('div','flex-grow-1');
-    const item = lastMenu.find(it => it.id===c.item_id) || {name:`Item ${c.item_id}`, base_price:0};
-    left.innerHTML = `<div><strong>${escapeHtml(item.name)}</strong> <small class="muted-small">x${c.qty}</small></div>
-                      <div class="muted-small">Variant: ${c.variant_id||'-'} Addons: ${(c.addon_ids?.join(',')||'-')}</div>`;
-    const ctrl = el('div');
-    ctrl.innerHTML = `<button class="btn btn-sm btn-outline-secondary me-1" data-idx="${idx}" data-op="inc">+</button>
-                      <button class="btn btn-sm btn-outline-secondary me-1" data-idx="${idx}" data-op="dec">-</button>
-                      <button class="btn btn-sm btn-danger" data-idx="${idx}" data-op="del">x</button>`;
-    row.appendChild(left); row.appendChild(ctrl);
-    wrap.appendChild(row);
-  });
-  // handlers
-  wrap.querySelectorAll('button').forEach(b=>{
-    const idx = Number(b.dataset.idx);
-    if(b.dataset.op==='inc'){ b.onclick=()=>{ cart[idx].qty++; renderCart(); }; }
-    if(b.dataset.op==='dec'){ b.onclick=()=>{ cart[idx].qty--; if(cart[idx].qty<=0) cart.splice(idx,1); renderCart(); }; }
-    if(b.dataset.op==='del'){ b.onclick=()=>{ cart.splice(idx,1); renderCart(); }; }
-  });
-  updateTotal();
-}
-
-async function updateTotal(){
-  let total = 0;
-  for(const c of cart){
-    const it = lastMenu.find(x=>x.id===c.item_id);
-    if(!it) continue;
-    let price = Number(it.base_price || 0);
-    if(c.variant_id && it.variants){
-      const v = it.variants.find(x=>x.id===c.variant_id);
-      if(v) price += Number(v.price_delta || 0);
+      clientMsg.textContent = "";
+    } catch (err) {
+      console.error(err);
+      clientMsg.className = "status error";
+      clientMsg.textContent = "Network error submitting order.";
     }
-    if(c.addon_ids && it.addons){
-      for(const aid of c.addon_ids){
-        const a = it.addons.find(x=>x.id===aid);
-        if(a) price += Number(a.price || 0);
-      }
-    }
-    total += price * c.qty;
   }
-  const ref = document.getElementById('ref-code').value.trim();
-  let refDiscount = 0;
-  if(ref){
-    if(ref.toUpperCase()==='A10'){ refDiscount = 10; document.getElementById('ref-info').textContent='Demo code A10: ₹10 off (client-side preview)'; }
-    else if(ref.toUpperCase()==='B20'){ refDiscount = 20; document.getElementById('ref-info').textContent='Demo code B20: ₹20 off (client-side preview)'; }
-    else { document.getElementById('ref-info').textContent='Unknown code (server-side validation required)'; }
-  } else document.getElementById('ref-info').textContent='';
-  const final = Math.max(0, total - refDiscount);
-  document.getElementById('total').textContent = final.toFixed(2);
-}
 
-/* DELIVERY CHECK */
-function toNumberPair(s){
-  if(!s) return null;
-  const parts = s.split(',').map(x=>x.trim());
-  if(parts.length!==2) return null;
-  const lat = Number(parts[0]); const lng = Number(parts[1]);
-  if(Number.isFinite(lat) && Number.isFinite(lng)) return {lat,lng};
-  return null;
-}
-function distanceKm(lat1, lon1, lat2, lon2){
-  const toRad = v => v*Math.PI/180;
-  const R = 6371;
-  const dLat=toRad(lat2-lat1), dLon=toRad(lon2-lon1);
-  const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;
-  const c = 2*Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-  return R*c;
-}
-async function checkDelivery(){
-  if(!document.getElementById('is-delivery').checked){ document.getElementById('delivery-warning').classList.add('d-none'); return true; }
-  const sc = toNumberPair(document.getElementById('shop-lng-lat').value) || shopCoords;
-  if(!sc){ document.getElementById('delivery-warning').textContent='Shop coords not set; cannot validate radius.'; document.getElementById('delivery-warning').classList.remove('d-none'); return true; }
-  if(!navigator.geolocation){ document.getElementById('delivery-warning').textContent='Geolocation not supported.'; document.getElementById('delivery-warning').classList.remove('d-none'); return false; }
-  return new Promise((resolve)=>{
-    navigator.geolocation.getCurrentPosition(pos=>{
-      const d = distanceKm(pos.coords.latitude, pos.coords.longitude, sc.lat, sc.lng);
-      if(d <= SHOP_RADIUS_KM){ document.getElementById('delivery-warning').classList.add('d-none'); resolve(true); }
-      else { document.getElementById('delivery-warning').textContent = `You are ${d.toFixed(2)} km away; delivery ${SHOP_RADIUS_KM} km limit.`; document.getElementById('delivery-warning').classList.remove('d-none'); resolve(false); }
-    }, err=>{
-      document.getElementById('delivery-warning').textContent='Location permission denied.'; document.getElementById('delivery-warning').classList.remove('d-none'); resolve(false);
-    });
-  });
-}
+  document.getElementById("btnLoadMenu").addEventListener("click", loadMenu);
+  document.getElementById("btnPlaceOrder").addEventListener("click", placeOrder);
 
-/* PLACE ORDER */
-document.getElementById('place-order').addEventListener('click', async ()=>{
-  if(cart.length===0){ alert('Cart empty'); return; }
-  const ok = await checkDelivery();
-  if(!ok) return;
-  const payload = {
-    shop_id: Number(document.getElementById('shop-id').value || 1),
-    phone: document.getElementById('phone').value || '',
-    address: document.getElementById('address').value || '',
-    is_delivery: document.getElementById('is-delivery').checked,
-    customer_name: document.getElementById('phone').value || 'Guest',
-    items: cart.map(c=>({ item_id: c.item_id, variant_id: c.variant_id, addon_ids: c.addon_ids, qty: c.qty })),
-    payment_method: document.getElementById('pay-method').value,
-    referral_code: document.getElementById('ref-code').value.trim() || null
-  };
-  try {
-    const res = await fetch(`${API_ROOT}/api/orders/order/create/`, {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify(payload)
-    });
-    const result = await res.json();
-    if(!res.ok){ document.getElementById('order-result').innerHTML = `<div class="text-danger">Error: ${JSON.stringify(result)}</div>`; return; }
-    document.getElementById('order-result').innerHTML = `<div class="text-success">Order created: ${JSON.stringify(result)}</div>`;
-    if(payload.payment_method === 'online'){
-      // start Razorpay flow
-      const payRes = await fetch(`${API_ROOT}/api/orders/${result.order_id}/create-payment/`, {method:'POST'});
-      const payJson = await payRes.json();
-      openRazorpay(payJson);
-    }
-    cart = []; renderCart();
-  } catch(e){
-    console.error(e); document.getElementById('order-result').innerHTML = '<div class="text-danger">Network error</div>';
-  }
-});
-
-/* Razorpay open */
-function openRazorpay(js){
-  if(typeof Razorpay === 'undefined'){
-    const s = document.createElement('script'); s.src='https://checkout.razorpay.com/v1/checkout.js';
-    s.onload = ()=> openRazorpay(js); document.head.appendChild(s); return;
-  }
-  const options = {
-    key: js.razorpay_key,
-    amount: js.amount,
-    currency: js.currency,
-    name: "LaPazera",
-    description: "Order #" + js.order_id,
-    order_id: js.razorpay_order_id,
-    handler: function (response){
-      alert("Payment success (id: " + response.razorpay_payment_id + "). Webhook will finalize status.");
-      document.getElementById('order-result').innerHTML = `<div class="text-success">Payment submitted; waiting for webhook confirmation.</div>`;
-    }
-  };
-  const rzp = new Razorpay(options);
-  rzp.open();
-}
-
-/* Init */
-document.getElementById('load-menu').addEventListener('click', loadMenu);
-document.getElementById('ref-code').addEventListener('input', updateTotal);
-document.getElementById('is-delivery').addEventListener('change', ()=>{ document.getElementById('delivery-warning').classList.add('d-none'); });
-loadMenu();
+  // auto-load once
+  loadMenu();
 </script>
 </body>
 </html>
