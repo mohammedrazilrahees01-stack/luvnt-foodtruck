@@ -1,0 +1,74 @@
+from django.db import models
+
+class Category(models.Model):
+    shop = models.ForeignKey('shops.Shop', on_delete=models.CASCADE, related_name='categories')
+    name = models.CharField(max_length=120)
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ('order', 'name')
+
+    def __str__(self):
+        return f"{self.name} ({self.shop.name})"
+
+
+class MenuItem(models.Model):
+    shop = models.ForeignKey('shops.Shop', on_delete=models.CASCADE, related_name='items')
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True, related_name='items')
+    name = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    base_price = models.DecimalField(max_digits=10, decimal_places=2)
+    image = models.ImageField(upload_to='items/', null=True, blank=True)
+    is_visible = models.BooleanField(default=True)
+    is_combo = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ('-created_at', 'name')
+
+    def __str__(self):
+        return f"{self.name} - {self.shop.name}"
+
+
+class ItemVariant(models.Model):
+    item = models.ForeignKey(MenuItem, on_delete=models.CASCADE, related_name='variants')
+    name = models.CharField(max_length=120)  # Small / Medium / Large
+    price_delta = models.DecimalField(max_digits=8, decimal_places=2, default=0.00)
+    sku = models.CharField(max_length=120, null=True, blank=True)
+
+    class Meta:
+        unique_together = ('item', 'name')
+
+    def __str__(self):
+        return f"{self.item.name} - {self.name}"
+
+
+class Addon(models.Model):
+    shop = models.ForeignKey('shops.Shop', on_delete=models.CASCADE, related_name='addons')
+    name = models.CharField(max_length=120)
+    price = models.DecimalField(max_digits=8, decimal_places=2)
+
+    def __str__(self):
+        return f"{self.name} (+{self.price})"
+
+
+class Combo(models.Model):
+    shop = models.ForeignKey('shops.Shop', on_delete=models.CASCADE, related_name='combos')
+    name = models.CharField(max_length=200)
+    base_price = models.DecimalField(max_digits=10, decimal_places=2)
+    items = models.ManyToManyField(MenuItem, through='ComboItem', related_name='in_combos')
+
+    def __str__(self):
+        return f"{self.name} - {self.shop.name}"
+
+
+class ComboItem(models.Model):
+    combo = models.ForeignKey(Combo, on_delete=models.CASCADE, related_name='combo_items')
+    item = models.ForeignKey(MenuItem, on_delete=models.CASCADE)
+    required = models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = ('combo', 'item')
+
+    def __str__(self):
+        return f"{self.combo.name} -> {self.item.name}"
