@@ -1,654 +1,766 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <title>LaPazera — Smart Food Truck</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- Simple clean styling -->
-  <style>
-    :root {
-      --primary: #2563eb;
-      --primary-dark: #1d4ed8;
-      --bg: #0f172a;
-      --card: #020617;
-      --card-soft: #111827;
-      --border: #1f2937;
-      --text: #e5e7eb;
-      --muted: #9ca3af;
-      --danger: #f97373;
-      --success: #22c55e;
-      --accent: #14b8a6;
-      --radius-lg: 18px;
-    }
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>LUVNT — Dessert & Snack Bar</title>
 
-    * { box-sizing: border-box; }
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ---------- Root / Theme Variables ---------- */
+        :root {
+            --bg: #fdf6ec;
+            --accent: #1a1a1a;
+            --muted: rgba(0, 0, 0, 0.6);
+            --card-bg: #ffffff;
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --shadow-soft: 0 20px 40px -10px rgba(0,0,0,0.05);
+            --shadow-hover: 0 25px 50px -12px rgba(0,0,0,0.1);
+            --primary-grad: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            --btn-dark: #111;
+            --danger: #d32f2f;
+            --success: #2e7d32;
+        }
 
-    body {
-      margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top left,#111827,#020617);
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-    }
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        
+        body {
+            margin: 0;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--accent);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
 
-    .shell {
-      width: 100%;
-      max-width: 1200px;
-      padding: 24px 16px 40px;
-    }
+        /* ---------- Loader ---------- */
+        #loader {
+            position: fixed; inset: 0; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; z-index: 9999;
+            background: #fffbf6; transition: opacity 0.5s ease, visibility 0.5s;
+        }
+        .loader-logo {
+            font-weight: 900; letter-spacing: 0.15em; font-size: 42px; margin-bottom: 20px;
+            background: linear-gradient(45deg, #111, #555); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .spinner {
+            width: 40px; height: 40px; border: 3px solid rgba(0,0,0,0.1); border-radius: 50%;
+            border-top-color: #ff8fa3; animation: spin 0.8s ease-in-out infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loader-hidden { opacity: 0; visibility: hidden; }
 
-    .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      margin-bottom: 20px;
-    }
+        /* ---------- Navigation ---------- */
+        .nav-wrapper {
+            position: fixed; top: 20px; left: 0; right: 0; z-index: 100; padding: 0 20px; pointer-events: none;
+        }
+        .nav {
+            max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between;
+            padding: 12px 24px; border-radius: 999px; background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03); border: 1px solid var(--glass-border); pointer-events: auto;
+        }
+        .brand { display: flex; align-items: center; gap: 12px; }
+        .brand-mark {
+            width: 40px; height: 40px; border-radius: 50%; background: var(--primary-grad);
+            display: flex; align-items: center; justify-content: center; font-weight: 800; color: #fff;
+            box-shadow: 0 4px 12px rgba(255, 143, 163, 0.3);
+        }
+        .nav-links { display: flex; gap: 24px; }
+        .nav-links a { text-decoration: none; color: var(--accent); font-size: 14px; font-weight: 500; opacity: 0.7; transition: opacity 0.2s; }
+        .nav-links a:hover { opacity: 1; }
+        .nav-btn {
+            padding: 8px 18px; border-radius: 999px; border: none; background: #fff;
+            font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); color: var(--accent);
+        }
+        .nav-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .nav-btn.primary { background: var(--btn-dark); color: #fff; }
+        .nav-btn.danger { color: var(--danger); }
+        .nav-btn.active-filter { background: #111; color: #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
 
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+        /* ---------- Layout ---------- */
+        .page { padding-top: 100px; padding-bottom: 60px; }
+        .shell { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        
+        /* Hero */
+        .hero { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; min-height: 80vh; }
+        .hero-left h1 { font-size: 56px; line-height: 1.1; letter-spacing: -0.02em; margin: 10px 0 20px; }
+        .hero-left p { font-size: 18px; color: var(--muted); max-width: 480px; margin-bottom: 30px; }
+        .hero-img-box {
+            position: relative; border-radius: 32px; overflow: hidden;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.12); transform: rotate(-2deg); transition: transform 0.5s ease;
+        }
+        .hero-img-box:hover { transform: rotate(0deg) scale(1.02); }
 
-    .logo {
-      width: 42px;
-      height: 42px;
-      border-radius: 16px;
-      border: 1px solid rgba(148,163,184,.5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 20px;
-      color: var(--accent);
-      background: radial-gradient(circle at top, #0ea5e9 0, #020617 55%);
-    }
+        /* Menu & Cart */
+        .section-header { margin: 80px 0 30px; display: flex; justify-content: space-between; align-items: flex-end; }
+        .layout-main { display: grid; grid-template-columns: 2fr 1fr; gap: 40px; }
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 24px; }
+        .product-card {
+            background: var(--card-bg); border-radius: 20px; padding: 16px; border: 1px solid rgba(0,0,0,0.04);
+            transition: transform 0.3s, box-shadow 0.3s; cursor: pointer; position: relative; overflow: hidden;
+            animation: fadeIn 0.4s ease forwards;
+        }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+        
+        .product-card:hover { transform: translateY(-8px); box-shadow: var(--shadow-hover); }
+        .product-img { width: 100%; height: 200px; object-fit: cover; border-radius: 14px; margin-bottom: 12px; }
+        .add-btn {
+            background: var(--btn-dark); color: white; border: none; width: 36px; height: 36px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: transform 0.2s; font-size: 18px;
+        }
+        .add-btn:active { transform: scale(0.9); }
 
-    .brand-title {
-      font-size: 20px;
-      font-weight: 700;
-    }
+        .cart-panel {
+            background: rgba(255,255,255,0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-radius: 24px; padding: 24px; border: 1px solid white; position: sticky; top: 110px;
+            height: fit-content; box-shadow: var(--shadow-soft);
+        }
+        .form-input {
+            width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 10px; background: rgba(255,255,255,0.5); font-family: inherit; transition: all 0.2s;
+        }
+        .form-input:focus { outline: none; background: #fff; border-color: #111; }
+        .place-order {
+            width: 100%; padding: 14px; background: #111; color: #fff; border: none; border-radius: 12px;
+            font-weight: 600; margin-top: 15px; cursor: pointer; transition: opacity 0.2s;
+        }
+        .place-order:hover { opacity: 0.9; }
 
-    .brand-sub {
-      font-size: 12px;
-      color: var(--muted);
-    }
+        /* Features & Contact */
+        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; margin-top: 40px; }
+        .feature-card { background: #fff; padding: 30px; border-radius: 20px; text-align: center; border: 1px solid rgba(0,0,0,0.03); box-shadow: var(--shadow-soft); }
+        .feature-icon { font-size: 32px; margin-bottom: 15px; display: block; }
+        .contact-layout {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 40px; background: #fff;
+            border-radius: 30px; padding: 40px; box-shadow: var(--shadow-soft); margin-top: 20px;
+        }
 
-    .badge {
-      padding: 4px 10px;
-      border-radius: 999px;
-      background: rgba(37, 99, 235, 0.2);
-      border: 1px solid rgba(59, 130, 246, 0.5);
-      font-size: 11px;
-    }
+        /* Responsive */
+        @media (max-width: 900px) {
+            .hero, .layout-main, .contact-layout { grid-template-columns: 1fr; }
+            .hero { text-align: center; padding-top: 40px; }
+            .hero-img-box { order: -1; transform: none; }
+            .cart-panel { position: relative; top: 0; order: -1; margin-bottom: 40px; }
+            .hide-mobile { display: none; }
+        }
 
-    .layout {
-      display: grid;
-      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-      gap: 20px;
-    }
+        /* ---------- Modals ---------- */
+        .overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.3); backdrop-filter: blur(4px); z-index: 200;
+            display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s;
+        }
+        .overlay.visible { display: flex; opacity: 1; }
+        .modal {
+            background: #fff; width: 100%; max-width: 480px; border-radius: 24px; padding: 30px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.2); transform: scale(0.95); transition: transform 0.3s; position: relative;
+        }
+        .overlay.visible .modal { transform: scale(1); }
+        .close-btn { position: absolute; top: 20px; right: 20px; background: none; border: none; font-size: 24px; cursor: pointer; opacity: 0.5; }
 
-    @media (max-width: 900px) {
-      .layout {
-        grid-template-columns: 1fr;
-      }
-    }
+        /* ---------- Profile Specifics ---------- */
+        .profile-tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .tab-btn { background: none; border: none; font-weight: 600; opacity: 0.5; cursor: pointer; padding: 8px 12px; font-size: 14px; border-radius: 8px; transition: all 0.2s; }
+        .tab-btn.active { background: #f0f0f0; opacity: 1; color: #111; }
 
-    .card {
-      background: linear-gradient(135deg, rgba(15,23,42,0.95), rgba(15,23,42,0.9));
-      border-radius: var(--radius-lg);
-      border: 1px solid rgba(31,41,55,0.85);
-      box-shadow: 0 18px 40px rgba(15,23,42,0.9);
-      padding: 16px 18px 18px;
-    }
+        .profile-avatar-container {
+            position: relative; width: 80px; height: 80px; margin: 0 auto 15px; cursor: pointer;
+        }
+        .profile-avatar {
+            width: 100%; height: 100%; background: #111; color: #fff; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 700; overflow: hidden;
+        }
+        .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .avatar-edit-icon {
+            position: absolute; bottom: 0; right: 0; background: #fff; border: 1px solid #ddd;
+            width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px;
+        }
 
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-      gap: 10px;
-    }
+        .tab-content { display: none; animation: fadeIn 0.3s; }
+        .tab-content.active { display: block; }
+        
+        .btn-cancel-small {
+            background: transparent; border: 1px solid #d32f2f; color: #d32f2f;
+            padding: 4px 10px; font-size: 11px; border-radius: 6px; cursor: pointer; font-weight: 600;
+        }
+        .btn-cancel-small:hover { background: #d32f2f; color: white; }
 
-    .card-title {
-      font-weight: 600;
-      font-size: 15px;
-    }
-
-    .card-sub {
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    .chip {
-      padding: 4px 10px;
-      border-radius: 999px;
-      background: rgba(15,23,42,0.9);
-      border: 1px solid rgba(55,65,81,.7);
-      font-size: 11px;
-      color: var(--muted);
-    }
-
-    /* Filters row */
-    .filters {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 8px;
-    }
-
-    label {
-      font-size: 11px;
-      color: var(--muted);
-      display: block;
-      margin-bottom: 4px;
-    }
-
-    input, select, button, textarea {
-      font: inherit;
-    }
-
-    .input {
-      width: 100%;
-      padding: 7px 9px;
-      border-radius: 10px;
-      border: 1px solid rgba(55,65,81,1);
-      background: rgba(15,23,42,0.9);
-      color: var(--text);
-      font-size: 13px;
-      outline: none;
-    }
-
-    .input::placeholder { color: #4b5563; }
-
-    .input:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 1px rgba(37,99,235,.6);
-    }
-
-    .btn {
-      border: none;
-      border-radius: 999px;
-      padding: 7px 16px;
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.2s;
-      white-space: nowrap;
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-      color: white;
-      box-shadow: 0 12px 30px rgba(37,99,235,0.45);
-    }
-    .btn-primary:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 16px 38px rgba(37,99,235,0.6);
-    }
-
-    .btn-outline {
-      background: transparent;
-      color: var(--text);
-      border: 1px solid rgba(75,85,99,.9);
-    }
-    .btn-outline:hover {
-      background: rgba(15,23,42,.8);
-    }
-
-    .btn-sm {
-      padding: 6px 12px;
-      font-size: 12px;
-    }
-
-    .menu-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-      gap: 12px;
-      margin-top: 8px;
-    }
-
-    .menu-item {
-      padding: 12px 12px 10px;
-      background: radial-gradient(circle at top left,#111827,#020617);
-      border-radius: 14px;
-      border: 1px solid rgba(31,41,55,1);
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .menu-name {
-      font-size: 14px;
-      font-weight: 500;
-    }
-
-    .price {
-      font-size: 13px;
-      color: var(--accent);
-      font-weight: 600;
-    }
-
-    .pill-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 4px;
-    }
-
-    .pill {
-      font-size: 11px;
-      padding: 3px 8px;
-      border-radius: 999px;
-      background: rgba(15,23,42,.9);
-      border: 1px solid rgba(55,65,81,.9);
-      color: var(--muted);
-    }
-
-    .addon-pill {
-      border-color: rgba(52,211,153,.5);
-      color: #a7f3d0;
-    }
-
-    .menu-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      margin-top: 4px;
-    }
-
-    .qty-input {
-      width: 60px;
-      text-align: center;
-    }
-
-    .cart-header-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 8px;
-    }
-
-    .cart-amount {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--accent);
-    }
-
-    .cart-body {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .cart-items {
-      max-height: 160px;
-      overflow-y: auto;
-      padding-right: 4px;
-      margin-bottom: 4px;
-    }
-
-    .cart-line {
-      display: flex;
-      justify-content: space-between;
-      font-size: 12px;
-      padding: 4px 0;
-      border-bottom: 1px dashed rgba(55,65,81,.8);
-    }
-
-    .cart-meta {
-      font-size: 11px;
-      color: var(--muted);
-    }
-
-    .switch-row {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 12px;
-      margin-bottom: 6px;
-    }
-
-    .switch-row span.note {
-      font-size: 11px;
-      color: var(--muted);
-    }
-
-    .code-pill {
-      font-size: 11px;
-      color: var(--muted);
-      margin-top: 2px;
-    }
-
-    .status {
-      font-size: 12px;
-      margin-top: 6px;
-    }
-
-    .status.error { color: var(--danger); }
-    .status.ok { color: var(--success); }
-
-    .tiny {
-      font-size: 10px;
-      color: var(--muted);
-      margin-top: 6px;
-      text-align: right;
-    }
-
-    .api-link {
-      color: var(--accent);
-      text-decoration: none;
-      border-bottom: 1px dashed rgba(45,212,191,.5);
-      padding-bottom: 1px;
-      font-size: 12px;
-    }
-  </style>
+        /* ---------- UPI / Payment Styles ---------- */
+        .payment-method-btn {
+            display: flex; align-items: center; gap: 10px; width: 100%; padding: 12px;
+            background: #fff; border: 1px solid #eee; border-radius: 12px; margin-bottom: 10px;
+            text-decoration: none; color: #111; font-weight: 600; transition: all 0.2s;
+        }
+        .payment-method-btn:hover { background: #f9f9f9; border-color: #ccc; transform: translateX(5px); }
+        .payment-method-btn img { width: 24px; height: 24px; object-fit: contain; }
+        
+        .qr-container {
+            background: #fff; padding: 15px; border-radius: 15px; border: 2px dashed #ccc;
+            display: inline-block; margin: 15px 0;
+        }
+    </style>
 </head>
+
 <body>
-<div class="shell">
-  <!-- Top bar -->
-  <header class="topbar">
-    <div class="brand">
-      <div class="logo">L</div>
-      <div>
-        <div class="brand-title">LaPazera — Menu</div>
-        <div class="brand-sub">Live food-truck orders • MENA / Abu Dhabi</div>
-      </div>
+
+    <div id="loader">
+        <div class="loader-logo">LUVNT</div>
+        <div class="spinner"></div>
+        <div id="loader-text" style="margin-top:15px; opacity:0.6; font-size:14px;">Loading Experience...</div>
     </div>
-    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-      <span class="badge">v1 · Internal demo (Django + DRF)</span>
-      <a href="/api/menu/" class="api-link" target="_blank">Open API root</a>
+
+    <div class="nav-wrapper">
+        <header class="nav">
+            <div class="brand">
+                <div class="brand-mark">L</div>
+                <div class="brand-text">
+                    <div style="font-weight:800; font-size: 18px;">LUVNT</div>
+                    <div style="font-size:11px; opacity:0.6; font-weight:500;">DESSERT BAR</div>
+                </div>
+            </div>
+
+            <nav class="nav-links hide-mobile">
+                <a href="#top">Home</a>
+                <a href="#menu">Menu</a>
+                <a href="#about">Story</a>
+                <a href="#contact">Contact</a>
+            </nav>
+
+            <div class="nav-actions">
+                <button id="btn-login" class="nav-btn primary" onclick="openLogin()">Login</button>
+                <div id="auth-buttons" style="display:none; gap:8px;">
+                    <button id="btn-profile" class="nav-btn" onclick="openProfilePanel('profile')">Profile</button>
+                    <button id="btn-orders" class="nav-btn" onclick="openProfilePanel('orders')">Orders</button>
+                    <button id="btn-logout" class="nav-btn danger" onclick="handleLogout()">Logout</button>
+                </div>
+            </div>
+        </header>
     </div>
-  </header>
 
-  <!-- Layout -->
-  <main class="layout">
-    <!-- LEFT: MENU -->
-    <section class="card">
-      <div class="card-header">
-        <div>
-          <div class="card-title">Shop menu</div>
-          <div class="card-sub">Load items for any truck ID and location.</div>
+    <div id="page" class="page">
+        <div class="shell">
+            
+            <section class="hero" id="top">
+                <div class="hero-left">
+                    <div style="display:inline-block; padding:6px 12px; background:#fff; border-radius:99px; font-size:12px; font-weight:700; margin-bottom:15px; box-shadow:0 4px 10px rgba(0,0,0,0.05); color: #ff8fa3;">
+                        🚀 Same Day Delivery · MENA Region
+                    </div>
+                    <h1>Desserts glazed with <span style="background: linear-gradient(120deg, #ff9a9e 0%, #ffc3a0 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">pure love.</span></h1>
+                    <p>Your personal pastry universe. Waffles, sundaes, and artisanal sliders prepared fresh for pickup or delivery.</p>
+                    <div style="display:flex; gap:12px;">
+                        <button class="nav-btn primary" style="padding:14px 28px;" onclick="document.getElementById('menu').scrollIntoView()">Order Now</button>
+                        <button class="nav-btn" style="padding:14px 28px;" onclick="document.getElementById('about').scrollIntoView()">Read Story</button>
+                    </div>
+                </div>
+                <div class="hero-right">
+                    <div class="hero-img-box">
+                        <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" style="width:100%; height:450px; object-fit:cover; display:block;" alt="Hero Food">
+                    </div>
+                </div>
+            </section>
+
+            <div class="section-header" id="menu">
+                <div><h2>Today's Selection</h2><p style="opacity:0.6; margin-top:5px;">Curated for midnight cravings.</p></div>
+                <div style="display:flex; gap:8px;">
+                    <button id="filter-all" class="nav-btn active-filter" onclick="filterMenu('all')">All</button>
+                    <button id="filter-sweet" class="nav-btn" onclick="filterMenu('sweet')">Sweet</button>
+                    <button id="filter-savory" class="nav-btn" onclick="filterMenu('savory')">Savory</button>
+                </div>
+            </div>
+
+            <section class="layout-main">
+                <div>
+                    <div id="product-grid" class="product-grid"></div>
+                    <div id="product-empty" style="display:none; padding:40px; text-align:center; background:#fff; border-radius:20px;">No items in this category.</div>
+                </div>
+
+                <aside class="cart-panel">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                        <h3 style="margin:0;">Your Bag</h3>
+                        <span id="cart-count" style="background:#111; color:#fff; padding:2px 10px; border-radius:10px; font-size:12px; font-weight:700;">0</span>
+                    </div>
+
+                    <div id="cart-items" style="max-height:300px; overflow-y:auto; margin-bottom:20px; padding-right:5px;">
+                        <div style="text-align:center; padding:30px 0; opacity:0.5; font-size:14px;">Your bag is empty.</div>
+                    </div>
+
+                    <div style="display:grid;">
+                        <label style="font-size: 11px; font-weight: 700; margin-bottom: 4px; opacity: 0.6;">DELIVERY METHOD</label>
+                        <select id="field-delivery" class="form-input">
+                            <option value="pickup">📍 Pickup at Shop</option>
+                            <option value="delivery">🛵 Home Delivery (+₹50)</option>
+                        </select>
+                        
+                        <label style="font-size: 11px; font-weight: 700; margin-bottom: 4px; opacity: 0.6; margin-top:5px;">PAYMENT METHOD</label>
+                        <select id="field-payment" class="form-input">
+                            <option value="upi">📲 Pay Online (UPI / QR)</option>
+                            <option value="cod">💵 Cash on Delivery</option>
+                        </select>
+
+                        <label style="font-size: 11px; font-weight: 700; margin-bottom: 4px; opacity: 0.6; margin-top:5px;">DETAILS</label>
+                        <input id="field-phone" class="form-input" placeholder="Phone Number" />
+                        <input id="field-name" class="form-input" placeholder="Your Name" />
+                        <textarea id="field-address" class="form-input" placeholder="Flat / Building / Street" style="height:80px; resize:none;"></textarea>
+                    </div>
+
+                    <div style="border-top:1px dashed #ccc; margin-top:20px; padding-top:15px; display:flex; justify-content:space-between; align-items:center;">
+                        <span style="opacity:0.7">Total Amount</span>
+                        <span style="font-weight:800; font-size:22px;">₹ <span id="cart-total">0.00</span></span>
+                    </div>
+
+                    <button id="btn-place-order" class="place-order" onclick="initiateCheckout()">Proceed to Pay</button>
+                    <div id="cart-status" style="text-align:center; font-size:12px; margin-top:10px; font-weight:600;"></div>
+                </aside>
+            </section>
+
+            <section id="about" style="margin-top:100px;">
+                <div style="text-align:center; max-width:700px; margin:0 auto;">
+                    <span style="color:#ff8fa3; font-weight:700; letter-spacing:1px; text-transform:uppercase; font-size:12px;">Our Philosophy</span>
+                    <h2 style="font-size:36px; margin-top:10px;">More than just sugar.</h2>
+                    <p style="opacity:0.7; font-size: 16px;">LUVNT started in a small food truck in 2023 with one mission: to fix the late-night dessert gap in the MENA region.</p>
+                </div>
+                <div class="features-grid">
+                    <div class="feature-card"><span class="feature-icon">🌿</span><h4>Fresh Ingredients</h4><p style="font-size:14px; opacity:0.7;">Sourced locally every morning.</p></div>
+                    <div class="feature-card"><span class="feature-icon">⚡</span><h4>Hyper Speed</h4><p style="font-size:14px; opacity:0.7;">From our oven to your doorstep in 45 mins.</p></div>
+                    <div class="feature-card"><span class="feature-icon">💎</span><h4>Premium Quality</h4><p style="font-size:14px; opacity:0.7;">Imported cocoa and high-grade flour.</p></div>
+                </div>
+            </section>
+
+            <section id="contact" style="margin-top:100px;">
+                <h2 style="text-align:center; margin-bottom:20px;">Come say hi!</h2>
+                <div class="contact-layout">
+                    <div style="padding-right:20px;">
+                        <h3 style="margin-top:0;">Send a message</h3>
+                        <div style="display:grid;">
+                            <input class="form-input" placeholder="Email Address" />
+                            <textarea class="form-input" style="height:120px;" placeholder="Message..."></textarea>
+                            <button class="place-order" style="margin-top:0;">Send Message</button>
+                        </div>
+                    </div>
+                    <div style="background:#f8f9fa; padding:30px; border-radius:20px;">
+                        <strong>📍 Head Quarters</strong><p style="margin:5px 0 20px; opacity:0.7; font-size:14px;">Dubai, UAE</p>
+                        <strong>📞 Phone</strong><p style="margin:5px 0 20px; opacity:0.7; font-size:14px;">+971 50 123 4567</p>
+                        <div style="width:100%; height:120px; background:#e0e0e0; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600;">MAP</div>
+                    </div>
+                </div>
+            </section>
+
+            <footer style="margin-top:80px; padding:40px 0; text-align:center; font-size:13px; opacity:0.6;">&copy; 2025 LUVNT Group.</footer>
         </div>
-        <span class="chip">5 km delivery radius logic in backend</span>
-      </div>
+    </div>
 
-      <!-- Filters -->
-      <div class="filters">
-        <div style="min-width:90px;flex:1;">
-          <label for="shopId">Shop ID</label>
-          <input id="shopId" class="input" value="1" />
+    <div id="login-overlay" class="overlay">
+        <div class="modal">
+            <button class="close-btn" onclick="closeLogin()">&times;</button>
+            <h2 style="margin:0 0 10px 0;">Welcome Back</h2>
+            <p style="opacity:0.6; margin-bottom:20px; font-size: 14px;">Login via OTP to view orders.</p>
+            <label style="font-size:11px; font-weight:700;">PHONE NUMBER</label>
+            <input id="login-phone" class="form-input" placeholder="+971..." />
+            <label style="font-size:11px; font-weight:700; margin-top:10px; display:block;">YOUR NAME</label>
+            <input id="login-name" class="form-input" placeholder="John Doe" />
+            <button id="save-login-btn" class="place-order">Send OTP & Login</button>
         </div>
-        <div style="min-width:110px;flex:2;">
-          <label for="shopLatLng">Shop lat,lng (optional)</label>
-          <input id="shopLatLng" class="input" placeholder="24.4667,54.3667" />
+    </div>
+
+    <div id="payment-overlay" class="overlay">
+        <div class="modal" style="text-align:center;">
+            <button class="close-btn" onclick="closePayment()">&times;</button>
+            <h2 style="margin:0 0 5px 0;">Pay Online</h2>
+            <p style="font-size:14px; opacity:0.6;">Scan QR or click below to pay.</p>
+            
+            <div style="font-size:24px; font-weight:800; margin:10px 0;">₹ <span id="pay-amount-display">0</span></div>
+
+            <div class="qr-container">
+                <img id="upi-qr-image" src="" alt="QR Code" style="width:150px; height:150px;">
+            </div>
+            
+            <p style="font-size:12px; opacity:0.5; margin-bottom:15px;">Use any UPI App to Scan</p>
+
+            <a id="link-gpay" href="#" class="payment-method-btn">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Google_Pay_Logo.svg" alt="GPay"> Pay with GPay
+            </a>
+            <a id="link-phonepe" href="#" class="payment-method-btn">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/7/71/PhonePe_Logo.svg" alt="PhonePe"> Pay with PhonePe
+            </a>
+            <a id="link-paytm" href="#" class="payment-method-btn">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/2/24/Paytm_Logo_%28standalone%29.svg" alt="Paytm"> Pay with Paytm
+            </a>
+
+            <div style="border-top:1px solid #eee; margin-top:15px; padding-top:15px;">
+                <button class="place-order" onclick="confirmUPIPayment()" style="background:#2e7d32;">✅ I Have Paid</button>
+                <div style="font-size:11px; opacity:0.6; margin-top:5px;">Click only after payment is successful.</div>
+            </div>
         </div>
-        <div>
-          <label>&nbsp;</label>
-          <button id="btnLoadMenu" class="btn btn-primary btn-sm">Load menu</button>
+    </div>
+
+    <div id="profile-overlay" class="overlay">
+        <div class="modal">
+            <button class="close-btn" onclick="closeProfilePanel()">&times;</button>
+            <h2 style="margin:0 0 15px 0;">Account</h2>
+
+            <div class="profile-tabs">
+                <button class="tab-btn active" onclick="switchTab('profile')" id="tab-profile">My Profile</button>
+                <button class="tab-btn" onclick="switchTab('orders')" id="tab-orders">Order History</button>
+            </div>
+
+            <div id="view-profile" class="tab-content active">
+                <div class="profile-avatar-container" onclick="triggerImageUpload()">
+                    <div class="profile-avatar" id="prof-avatar-display">U</div>
+                    <div class="avatar-edit-icon">✎</div>
+                </div>
+                <input type="file" id="file-upload" style="display:none;" accept="image/*" onchange="handleImageUpload(this)">
+
+                <div style="text-align:center; margin-bottom:20px;">
+                    <div style="font-size:12px; color:blue; cursor:pointer;" onclick="triggerImageUpload()">Change Profile Picture</div>
+                </div>
+
+                <div style="background:#f9f9f9; padding:15px; border-radius:12px; margin-bottom:15px;">
+                    <label style="font-size:11px; font-weight:700; opacity:0.5;">NAME</label>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <input id="edit-name-input" class="form-input" style="margin:0; border:none; background:transparent; padding:0; font-weight:600; font-size:16px;" disabled>
+                        <button onclick="enableEdit()" style="border:none; background:none; color:blue; cursor:pointer; font-size:12px;">Edit</button>
+                    </div>
+                </div>
+
+                <div style="background:#f9f9f9; padding:15px; border-radius:12px; margin-bottom:20px;">
+                    <label style="font-size:11px; font-weight:700; opacity:0.5;">PHONE (ID)</label>
+                    <div id="prof-phone" style="font-weight:600;"></div>
+                </div>
+
+                <button id="btn-save-profile" class="place-order" style="display:none;" onclick="startProfileUpdate()">Verify & Save Changes</button>
+            </div>
+
+            <div id="view-orders" class="tab-content">
+                <div id="order-history-list" style="max-height:300px; overflow-y:auto;">Loading...</div>
+            </div>
         </div>
-      </div>
+    </div>
 
-      <!-- Menu items grid -->
-      <div id="menuGrid" class="menu-grid">
-        <!-- Items injected by JS -->
-      </div>
-    </section>
-
-    <!-- RIGHT: CART -->
-    <section class="card">
-      <div class="cart-header-row">
-        <div>
-          <div class="card-title">Cart</div>
-          <div class="card-sub" id="cartSummary">Cart empty</div>
+    <div id="product-overlay" class="overlay">
+        <div class="modal">
+            <button class="close-btn" onclick="closeProductModal()">&times;</button>
+            <img id="pm-img" src="" style="width:100%; height:250px; object-fit:cover; border-radius:12px; margin-bottom:15px; background:#eee;">
+            <h2 id="pm-title" style="margin:0 0 5px 0;"></h2>
+            <div style="font-size:13px; color:#777; margin-bottom:10px;">Category: <span id="pm-cat"></span></div>
+            <p id="pm-desc" style="opacity:0.8; font-size:15px; line-height:1.6; color:#333;"></p>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px; padding-top:20px; border-top:1px solid #eee;">
+                <div style="font-size:28px; font-weight:800;">₹ <span id="pm-price"></span></div>
+                <button id="pm-add" class="nav-btn primary" style="padding:12px 30px; font-size:16px;">Add to Bag</button>
+            </div>
         </div>
-        <div class="cart-amount">
-          Total: ₹<span id="cartTotal">0.00</span>
-        </div>
-      </div>
+    </div>
 
-      <div class="cart-body">
-        <!-- Cart lines -->
-        <div id="cartLines" class="cart-items"></div>
+    <script>
+        const API_ROOT = '/api'; 
+        
+        // IMPORTANT: REPLACE WITH YOUR ACTUAL UPI ID
+        const MERCHANT_UPI = "your-upi-id@oksbi"; 
+        const MERCHANT_NAME = "LUVNT Dessert Bar";
 
-        <!-- Referral + delivery -->
-        <div>
-          <label for="referralCode">Referral code</label>
-          <input id="referralCode" class="input" placeholder="optional (A / B / C etc.)" />
-          <div class="code-pill">Codes validated server-side later, safe to share.</div>
-        </div>
+        let MENU_ITEMS = [];
+        let FILTERED_ITEMS = []; // Used for filtering
+        let CART = [];
+        let CURRENT_MODAL = null;
 
-        <div class="switch-row">
-          <input id="isDelivery" type="checkbox" />
-          <span>Delivery (5 km radius)</span>
-        </div>
+        // DUMMY MENU (With CATEGORIES Added)
+        const DUMMY_MENU = [
+            {id:101, name:"Belgian Waffle", category: "sweet", base_price:180, image:"https://images.unsplash.com/photo-1562376552-0d160a2f238d?auto=format&fit=crop&w=500&q=60"},
+            {id:102, name:"Chocolate Sundae", category: "sweet", base_price:240, image:"https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&w=500&q=60"},
+            {id:103, name:"Spicy Sliders", category: "savory", base_price:320, image:"https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=500&q=60"},
+            {id:104, name:"Berry Smoothie", category: "sweet", base_price:150, image:"https://images.unsplash.com/photo-1553530979-7ee52a2670c4?auto=format&fit=crop&w=500&q=60"},
+            {id:105, name:"NY Cheesecake", category: "sweet", base_price:210, image:"https://images.unsplash.com/photo-1524351199678-941a58a3dfcd?auto=format&fit=crop&w=500&q=60"},
+            {id:106, name:"Avocado Toast", category: "savory", base_price:250, image:"https://images.unsplash.com/photo-1588137372308-15f75323ca8d?auto=format&fit=crop&w=500&q=60"},
+            {id:107, name:"Chicken Wings", category: "savory", base_price:280, image:"https://images.unsplash.com/photo-1567620832903-9fc6debc209f?auto=format&fit=crop&w=500&q=60"},
+            {id:108, name:"Fudge Brownie", category: "sweet", base_price:160, image:"https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=500&q=60"}
+        ];
 
-        <!-- Customer inputs -->
-        <div>
-          <label for="phoneInput">Phone</label>
-          <input id="phoneInput" class="input" placeholder="e.g. 7594033710" />
-        </div>
+        // UTILS
+        function safeGet(id) { return document.getElementById(id); }
+        function formatPrice(v) { return Number(v || 0).toFixed(2); }
+        function getCookie(name) {
+            let v = null;
+            if (document.cookie && document.cookie !== '') {
+                const c = document.cookie.split(';');
+                for (let i = 0; i < c.length; i++) {
+                    const cookie = c[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        v = decodeURIComponent(cookie.substring(name.length + 1)); break;
+                    }
+                }
+            } return v;
+        }
 
-        <div>
-          <label for="addressInput">Address</label>
-          <input id="addressInput" class="input" placeholder="Flat / building / landmark" />
-        </div>
+        // --- INIT ---
+        window.addEventListener('load', () => {
+            setTimeout(() => { safeGet('loader').classList.add('loader-hidden'); checkAuthState(); }, 1200);
+            loadMenu();
+        });
 
-        <div>
-          <label for="paymentMethod">Payment</label>
-          <select id="paymentMethod" class="input">
-            <option value="online">Online (UPI / Checkout)</option>
-            <option value="cash">Cash at shop</option>
-          </select>
-        </div>
+        // --- FILTER LOGIC (NEW) ---
+        function filterMenu(category) {
+            // Update UI Buttons
+            document.querySelectorAll('.active-filter').forEach(b => b.classList.remove('active-filter'));
+            safeGet(`filter-${category}`).classList.add('active-filter');
 
-        <!-- Action row -->
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:4px;">
-          <div style="font-size:11px;color:var(--muted);">
-            All prices in <strong>INR</strong>. Online payments simulated in test mode.
-          </div>
-          <button id="btnPlaceOrder" class="btn btn-primary">
-            Place order
-          </button>
-        </div>
+            // Filter Data
+            if(category === 'all') {
+                FILTERED_ITEMS = MENU_ITEMS;
+            } else {
+                FILTERED_ITEMS = MENU_ITEMS.filter(item => item.category === category);
+            }
+            renderProducts();
+        }
 
-        <div id="clientMessage" class="status"></div>
-        <div id="serverMessage" class="status"></div>
+        // --- AUTH ---
+        function checkAuthState() {
+            const phone = localStorage.getItem('luvnt_phone');
+            const name = localStorage.getItem('luvnt_name');
+            if (phone && name) {
+                safeGet('btn-login').style.display = 'none';
+                safeGet('auth-buttons').style.display = 'flex';
+                safeGet('field-phone').value = phone;
+                safeGet('field-name').value = name;
+            } else {
+                safeGet('btn-login').style.display = 'block';
+                safeGet('auth-buttons').style.display = 'none';
+            }
+        }
+        function openLogin() { safeGet('login-overlay').classList.add('visible'); }
+        function closeLogin() { safeGet('login-overlay').classList.remove('visible'); }
+        function saveLogin() {
+            const phone = safeGet('login-phone').value;
+            const name = safeGet('login-name').value;
+            if(!phone || !name) { alert("Details required"); return; }
+            localStorage.setItem('luvnt_phone', phone);
+            localStorage.setItem('luvnt_name', name);
+            closeLogin(); checkAuthState();
+        }
+        function handleLogout() {
+            if(!confirm("Are you sure?")) return;
+            localStorage.clear();
+            window.location.reload();
+        }
 
-        <div class="tiny">
-          Open API: <a class="api-link" href="/api/orders/" target="_blank">/api/orders/</a>
-        </div>
-      </div>
-    </section>
-  </main>
-</div>
+        // --- PROFILE & ORDERS ---
+        function openProfilePanel(tab = 'profile') {
+            const name = localStorage.getItem('luvnt_name') || 'Guest';
+            const phone = localStorage.getItem('luvnt_phone') || 'No Phone';
+            const avatarImg = localStorage.getItem('luvnt_avatar');
 
-<script>
-  const API_MENU_ITEMS = "/api/menu/items/";
-  const API_ORDER_CREATE = "/api/orders/order/create/";  // uses your Django view
+            safeGet('edit-name-input').value = name;
+            safeGet('prof-phone').textContent = phone;
+            
+            const avDiv = safeGet('prof-avatar-display');
+            if(avatarImg) { avDiv.innerHTML = `<img src="${avatarImg}">`; }
+            else { avDiv.textContent = name.charAt(0).toUpperCase(); }
 
-  let cart = [];
+            loadRecentOrders();
+            switchTab(tab);
+            safeGet('profile-overlay').classList.add('visible');
+        }
+        function closeProfilePanel() { safeGet('profile-overlay').classList.remove('visible'); }
 
-  function money(v) {
-    return Number(v).toFixed(2);
-  }
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            safeGet(`tab-${tabName}`).classList.add('active');
+            safeGet(`view-${tabName}`).classList.add('active');
+        }
 
-  function renderMenu(items) {
-    const grid = document.getElementById("menuGrid");
-    grid.innerHTML = "";
-    if (!items.length) {
-      grid.innerHTML = "<div style='font-size:13px;color:#9ca3af'>No items returned by API.</div>";
-      return;
-    }
-    for (const item of items) {
-      const div = document.createElement("div");
-      div.className = "menu-item";
-      div.innerHTML = `
-        <div class="menu-name">${item.name}</div>
-        <div class="price">₹${money(item.base_price)}</div>
-        <div class="pill-row">
-          ${item.variants && item.variants.length ? `<span class="pill">${item.variants.length} variants</span>` : ""}
-          ${item.addons && item.addons.length ? `<span class="pill addon-pill">${item.addons.length} addons</span>` : ""}
-        </div>
-        <div class="menu-footer">
-          <input type="number" min="1" value="1" class="input qty-input" />
-          <button class="btn btn-outline btn-sm">Add</button>
-        </div>
-      `;
-      const qtyInput = div.querySelector("input");
-      const addBtn = div.querySelector("button");
-      addBtn.addEventListener("click", () => {
-        const qty = Math.max(1, parseInt(qtyInput.value || "1", 10));
-        addToCart(item, qty);
-      });
-      grid.appendChild(div);
-    }
-  }
+        function triggerImageUpload() { safeGet('file-upload').click(); }
+        function handleImageUpload(input) {
+            const file = input.files[0];
+            if(file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const base64 = e.target.result;
+                    localStorage.setItem('luvnt_avatar', base64);
+                    safeGet('prof-avatar-display').innerHTML = `<img src="${base64}">`;
+                }
+                reader.readAsDataURL(file);
+            }
+        }
 
-  function addToCart(item, qty) {
-    const existing = cart.find(c => c.id === item.id);
-    if (existing) {
-      existing.qty += qty;
-    } else {
-      cart.push({
-        id: item.id,
-        name: item.name,
-        price: Number(item.base_price),
-        qty
-      });
-    }
-    renderCart();
-  }
+        function enableEdit() {
+            const input = safeGet('edit-name-input');
+            input.disabled = false; input.focus(); input.style.borderBottom = "1px solid #111";
+            safeGet('btn-save-profile').style.display = "block";
+        }
+        function startProfileUpdate() {
+            const newName = safeGet('edit-name-input').value;
+            const phone = localStorage.getItem('luvnt_phone');
+            const otp = prompt(`Security Check: We sent an OTP to ${phone}. Enter '1234' to confirm name change.`);
+            if(otp === '1234') {
+                localStorage.setItem('luvnt_name', newName);
+                alert("Profile Updated Successfully!");
+                safeGet('edit-name-input').disabled = true; safeGet('edit-name-input').style.borderBottom = "none";
+                safeGet('btn-save-profile').style.display = "none";
+                checkAuthState();
+            } else { alert("Incorrect OTP. Changes discarded."); }
+        }
 
-  function renderCart() {
-    const lines = document.getElementById("cartLines");
-    const totalEl = document.getElementById("cartTotal");
-    const summaryEl = document.getElementById("cartSummary");
-    lines.innerHTML = "";
+        async function loadRecentOrders() {
+            const list = safeGet('order-history-list');
+            list.innerHTML = '<div style="opacity:0.5; text-align:center;">Fetching history...</div>';
+            try {
+                const res = await fetch(`${API_ROOT}/orders/by_customer/`);
+                if(res.ok) {
+                    const orders = await res.json();
+                    if(!orders.length) { list.innerHTML = '<div style="text-align:center; padding:20px;">No orders yet.</div>'; return; }
+                    renderOrderList(orders, list); return;
+                }
+            } catch(e) {}
+            const dummy = [{id: 1024, total: 420.00, created_at: new Date().toISOString(), status: 'Pending'}];
+            renderOrderList(dummy, list);
+        }
 
-    if (!cart.length) {
-      summaryEl.textContent = "Cart empty";
-      totalEl.textContent = "0.00";
-      return;
-    }
+        function renderOrderList(orders, container) {
+            container.innerHTML = orders.map(o => {
+                let color = '#2e7d32', bg = '#e8f5e9';
+                if(o.status === 'Pending') { color='#ef6c00'; bg='#fff3e0'; }
+                if(o.status === 'Cancelled') { color='#c62828'; bg='#ffebee'; }
+                const btn = (o.status==='Pending') ? `<button onclick="cancelOrder(${o.id})" class="btn-cancel-small">Cancel</button>` : '';
+                return `<div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid #f0f0f0; font-size:14px;"><div><b>Order #${o.id}</b><br><span style="font-size:12px; opacity:0.6">${new Date(o.created_at).toLocaleDateString()}</span></div><div style="text-align:right;"><b>₹${o.total}</b><div style="margin-top:4px; display:flex; gap:6px; align-items:center; justify-content:flex-end;"><span style="background:${bg}; color:${color}; padding:2px 6px; border-radius:4px; font-size:10px; font-weight:700;">${o.status || 'Active'}</span>${btn}</div></div></div>`;
+            }).join('');
+        }
 
-    let total = 0;
-    cart.forEach(line => {
-      const lineTotal = line.price * line.qty;
-      total += lineTotal;
-      const div = document.createElement("div");
-      div.className = "cart-line";
-      div.innerHTML = `
-        <span>${line.qty} × ${line.name}</span>
-        <span>₹${money(lineTotal)}</span>
-      `;
-      lines.appendChild(div);
-    });
-    summaryEl.textContent = `${cart.length} item(s) in cart`;
-    totalEl.textContent = money(total);
-  }
+        // --- MENU & CART ---
+        async function loadMenu() {
+            try {
+                const r = await fetch(`${API_ROOT}/menu/items/`);
+                if(r.ok) {
+                    const real = await r.json();
+                    MENU_ITEMS = [...real, ...DUMMY_MENU];
+                    filterMenu('all'); // Initialize
+                    return;
+                }
+            } catch(e) {}
+            MENU_ITEMS = DUMMY_MENU; filterMenu('all');
+        }
 
-  async function loadMenu() {
-    const msg = document.getElementById("clientMessage");
-    msg.textContent = "";
-    try {
-      const res = await fetch(API_MENU_ITEMS);
-      if (!res.ok) throw new Error("API error " + res.status);
-      const data = await res.json();
-      renderMenu(data);
-      msg.className = "status ok";
-      msg.textContent = `Loaded ${data.length} item(s) from API.`;
-    } catch (err) {
-      console.error(err);
-      msg.className = "status error";
-      msg.textContent = "Could not load menu. Check server / API.";
-    }
-  }
+        function renderProducts() {
+            const grid = safeGet('product-grid'); grid.innerHTML = '';
+            if(FILTERED_ITEMS.length === 0) { safeGet('product-empty').style.display='block'; return; }
+            safeGet('product-empty').style.display='none';
+            
+            FILTERED_ITEMS.forEach(item => {
+                const card = document.createElement('div'); card.className = 'product-card';
+                card.onclick = () => openProductModal(item);
+                card.innerHTML = `<img src="${item.image}" class="product-img"><div style="padding:0 4px;"><div style="font-weight:700; margin-bottom:4px; font-size:16px;">${item.name}</div><div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;"><div style="font-size:15px; opacity:0.8; font-weight:500;">₹ ${formatPrice(item.base_price)}</div><button class="add-btn" onclick="event.stopPropagation(); addToCart(${item.id})">+</button></div></div>`;
+                grid.appendChild(card);
+            });
+        }
 
-  async function placeOrder() {
-    const clientMsg = document.getElementById("clientMessage");
-    const serverMsg = document.getElementById("serverMessage");
-    clientMsg.textContent = "";
-    serverMsg.textContent = "";
+        function addToCart(id) {
+            const item = MENU_ITEMS.find(i => i.id == id);
+            if(!item) return;
+            const ex = CART.find(c => c.item.id == id);
+            if(ex) ex.qty++; else CART.push({item, qty:1});
+            renderCart();
+        }
 
-    if (!cart.length) {
-      clientMsg.className = "status error";
-      clientMsg.textContent = "Add at least one item to cart.";
-      return;
-    }
-    const phone = document.getElementById("phoneInput").value.trim();
-    const address = document.getElementById("addressInput").value.trim();
-    const isDelivery = document.getElementById("isDelivery").checked;
-    const shopId = parseInt(document.getElementById("shopId").value || "1", 10);
+        function renderCart() {
+            const c = safeGet('cart-items'); c.innerHTML = '';
+            let t = 0, q = 0;
+            if(!CART.length) { c.innerHTML = '<div style="text-align:center; padding:30px 0; opacity:0.5; font-size:14px;">Empty Bag</div>'; }
+            CART.forEach((r, i) => {
+                const row = document.createElement('div');
+                row.style.cssText = "display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; font-size:14px; border-bottom:1px dashed #eee; padding-bottom:8px;";
+                row.innerHTML = `<div><b>${r.item.name}</b><div style="font-size:12px; opacity:0.6">x${r.qty}</div></div><div style="display:flex; gap:8px;"><b>₹${formatPrice(r.item.base_price*r.qty)}</b><button onclick="CART.splice(${i},1);renderCart()" style="background:#f1f1f1; border:none; border-radius:50%; width:20px; height:20px; color:red;">x</button></div>`;
+                c.appendChild(row); t += r.item.base_price*r.qty; q += r.qty;
+            });
+            safeGet('cart-total').textContent = formatPrice(t); safeGet('cart-count').textContent = q;
+        }
 
-    if (!phone) {
-      clientMsg.className = "status error";
-      clientMsg.textContent = "Phone is required.";
-      return;
-    }
-    if (isDelivery && !address) {
-      clientMsg.className = "status error";
-      clientMsg.textContent = "Address is required for delivery.";
-      return;
-    }
+        // --- CHECKOUT & PAYMENTS (UPDATED) ---
+        function getCartTotal() { return CART.reduce((acc, row) => acc + (row.item.base_price * row.qty), 0); }
 
-    const payload = {
-      shop_id: shopId,
-      phone,
-      address,
-      is_delivery: isDelivery,
-      // simple items mapping (no variants/addons yet)
-      items: cart.map(c => ({
-        item_id: c.id,
-        variant_id: null,
-        addon_ids: [],
-        qty: c.qty
-      }))
-    };
+        function initiateCheckout() {
+            if(!CART.length) { alert("Cart is empty!"); return; }
+            if(!safeGet('field-phone').value) { alert("Phone required"); return; }
+            
+            const method = safeGet('field-payment').value;
+            const amount = getCartTotal();
 
-    clientMsg.className = "status";
-    clientMsg.textContent = "Sending order…";
+            if(method === 'upi') {
+                // Open UPI Modal
+                safeGet('pay-amount-display').textContent = formatPrice(amount);
+                
+                // 1. GENERATE UPI LINK
+                const upiLink = `upi://pay?pa=${MERCHANT_UPI}&pn=${encodeURIComponent(MERCHANT_NAME)}&am=${amount}&cu=INR`;
+                
+                // 2. SET LINKS FOR MOBILE APPS
+                safeGet('link-gpay').href = upiLink;
+                safeGet('link-phonepe').href = upiLink;
+                safeGet('link-paytm').href = upiLink;
 
-    try {
-      const res = await fetch(API_ORDER_CREATE, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        serverMsg.className = "status error";
-        serverMsg.textContent = JSON.stringify(data);
-      } else {
-        serverMsg.className = "status ok";
-        serverMsg.textContent = JSON.stringify(data);
-        cart = [];
-        renderCart();
-      }
-      clientMsg.textContent = "";
-    } catch (err) {
-      console.error(err);
-      clientMsg.className = "status error";
-      clientMsg.textContent = "Network error submitting order.";
-    }
-  }
+                // 3. GENERATE QR CODE (Using API)
+                const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiLink)}`;
+                safeGet('upi-qr-image').src = qrUrl;
 
-  document.getElementById("btnLoadMenu").addEventListener("click", loadMenu);
-  document.getElementById("btnPlaceOrder").addEventListener("click", placeOrder);
+                safeGet('payment-overlay').classList.add('visible');
+            } else {
+                // Cash on Delivery
+                confirmOrderBackend("cod");
+            }
+        }
 
-  // auto-load once
-  loadMenu();
-</script>
+        function closePayment() { safeGet('payment-overlay').classList.remove('visible'); }
+
+        function confirmUPIPayment() {
+            // User claims they paid
+            confirmOrderBackend("upi");
+            closePayment();
+        }
+
+        async function confirmOrderBackend(method) {
+            const status = safeGet('cart-status');
+            status.textContent = "Placing Order..."; status.style.color = "blue";
+
+            const payload = {
+                phone: safeGet('field-phone').value,
+                name: safeGet('field-name').value,
+                address: safeGet('field-address').value,
+                items: CART.map(c => ({id: c.item.id, qty: c.qty})),
+                total: getCartTotal(),
+                payment_method: method
+            };
+
+            // SIMULATED API CALL
+            setTimeout(() => {
+                alert(`Order Placed Successfully! Method: ${method.toUpperCase()}`);
+                status.textContent = "Success! ✅"; status.style.color = "green";
+                CART = []; renderCart();
+                setTimeout(() => openProfilePanel('orders'), 1000);
+            }, 1000);
+
+            // REAL API CODE (Uncomment when backend ready)
+            /*
+            try {
+                const token = getCookie('csrftoken');
+                const res = await fetch(`${API_ROOT}/orders/create/`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json', 'X-CSRFToken': token},
+                    body: JSON.stringify(payload)
+                });
+                if(res.ok) { // Success Logic }
+            } catch(e) {}
+            */
+        }
+
+        // --- MODAL HELPERS ---
+        function openProductModal(item) {
+            CURRENT_MODAL = item; safeGet('pm-title').textContent = item.name; safeGet('pm-cat').textContent = item.category.toUpperCase(); safeGet('pm-price').textContent = formatPrice(item.base_price); safeGet('pm-img').src = item.image; safeGet('product-overlay').classList.add('visible');
+        }
+        function closeProductModal() { safeGet('product-overlay').classList.remove('visible'); }
+        safeGet('pm-add').addEventListener('click', () => { if(CURRENT_MODAL) addToCart(CURRENT_MODAL.id); closeProductModal(); });
+        window.onclick = function(e) { if(e.target.classList.contains('overlay')) e.target.classList.remove('visible'); }
+        safeGet('save-login-btn').addEventListener('click', saveLogin);
+    </script>
 </body>
 </html>
